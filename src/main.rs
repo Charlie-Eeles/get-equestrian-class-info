@@ -5,6 +5,7 @@ use std::collections::HashSet;
 use prettytable::{Table, Row, Cell, row};
 use std::error::Error as stderr;
 use csv::Writer;
+use std::env;
 
 #[derive(Debug)]
 enum Error {
@@ -118,9 +119,18 @@ async fn main() -> Result<(), Error> {
             }
         }
 
+        let all_command_args: Vec<_> = env::args().collect();
+        let user_command_args = &all_command_args[1..];
 
-        print_table_in_console(&combined_data_vec);
-        write_to_csv(&combined_data_vec).expect("Uh oh, An error occurred 😟, failed to create CSV.");
+        let view_arg = user_command_args.contains(&String::from("view"));
+        let create_arg = user_command_args.contains(&String::from("create"));
+
+        if view_arg {
+            print_table_in_console(&combined_data_vec);
+        }
+        if create_arg || user_command_args.len() == 0 {
+            write_to_csv(&combined_data_vec).expect("Uh oh, An error occurred 😟, failed to create CSV.");
+        }
 
     } else {
         println!("Sorry 😟, request failed with status: {}", response.status());
